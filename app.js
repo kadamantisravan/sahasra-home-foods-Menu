@@ -1,0 +1,15 @@
+const sourceItems=JSON.parse(localStorage.getItem('sahasra-menu-v1')||'null')||MENU_ITEMS;
+const menu=document.querySelector('#menu'),search=document.querySelector('#search'),chips=document.querySelector('#chips'),count=document.querySelector('#count'),empty=document.querySelector('#empty'),clearSearch=document.querySelector('#clearSearch');
+let active='All';
+const categories=['All',...new Set(sourceItems.map(x=>x.category))];
+const categoryEmoji={'Traditional Sweets':'🍬','Laddu & Special Sweets':'🍥','Milk Sweets':'🥛','Pickles':'🥭','Karam Podi & Masalas':'🌶️','Hot Items & Snacks':'🥨'};
+chips.innerHTML=categories.map(c=>`<button class="chip ${c==='All'?'active':''}" data-cat="${c}" role="tab">${c==='All'?'✨ All':(categoryEmoji[c]||'🍽️')+' '+c}</button>`).join('');
+chips.addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;active=b.dataset.cat;document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active',x===b));render();});
+search.addEventListener('input',()=>{clearSearch.style.display=search.value?'block':'none';render();});
+clearSearch.addEventListener('click',()=>{search.value='';clearSearch.style.display='none';search.focus();render();});
+const imgUrl=(name,i)=>`https://loremflickr.com/900/760/${encodeURIComponent(name.replace(/\s+/g,','))},indian,food?lock=${700+i}`;
+function money(v){return v==null?'Price on request':`₹${Number(v).toLocaleString('en-IN')}`}
+function render(){const q=search.value.trim().toLowerCase();const list=sourceItems.map((x,i)=>({...x,i})).filter(x=>(active==='All'||x.category===active)&&(!q||`${x.en} ${x.te} ${x.category}`.toLowerCase().includes(q)));count.textContent=list.length;empty.classList.toggle('hidden',list.length>0);menu.innerHTML=list.map(x=>`<article class="card"><div class="photo-wrap"><img class="photo" src="${x.image||imgUrl(x.en,x.i)}" alt="${x.en} — ${x.te}" loading="lazy" referrerpolicy="no-referrer" onerror="this.src='https://loremflickr.com/900/760/indian,food?lock=${900+x.i}'"><div class="photo-shade"></div><span class="number">#${x.i+1}</span></div><div class="card-body"><div class="tag">${categoryEmoji[x.category]||'🍽️'} ${x.category}</div><div class="name-te">${x.te}</div><div class="name-en">${x.en}</div><div class="bottom"><div><div class="price">${money(x.price)}</div><div class="unit">${x.unit||'Serving'}</div></div><div class="rating" aria-label="Rate ${x.en}">${[1,2,3,4,5].map(n=>`<button class="star" data-rate="${n}" data-id="${x.i}" aria-label="${n} stars">★</button>`).join('')}</div></div></div></article>`).join('');applyRatings();}
+function applyRatings(){document.querySelectorAll('.rating').forEach(r=>{const id=r.querySelector('.star')?.dataset.id;const value=Number(localStorage.getItem('sahasra-rating-'+id)||0);r.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<value));});}
+menu.addEventListener('click',e=>{const b=e.target.closest('.star');if(!b)return;localStorage.setItem('sahasra-rating-'+b.dataset.id,b.dataset.rate);applyRatings();});
+render();
