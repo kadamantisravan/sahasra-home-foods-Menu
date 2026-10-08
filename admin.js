@@ -1148,50 +1148,125 @@ $('#viewSite').onclick =
     location.href =
       'index.html';
   };
+// ======================================================
+// SUPABASE AUTH - ADMIN ACCESS
+// ======================================================
+
+const ADMIN_IDS = [
+  '1b23be81-acc6-4d5b-89fa-157d53be6d19',
+  'cb2de47e-b38c-4862-a2c8-32136e06c82f'
+];
 
 
 // ======================================================
-// LOGOUT
+// SHOW LOGIN SCREEN
 // ======================================================
 
-$('#logout').onclick =
-  () => {
+function showLogin() {
 
-    sessionStorage.removeItem(
-      'sahasra-admin'
-    );
+  $('#login')
+    .classList
+    .remove('hidden');
 
-    location.reload();
-  };
+  $('#app')
+    .classList
+    .add('hidden');
+}
 
 
 // ======================================================
-// OPEN ADMIN
+// OPEN ADMIN PANEL
 // ======================================================
 
 function openAdmin() {
-
-  sessionStorage.setItem(
-    'sahasra-admin',
-    '1'
-  );
-
 
   $('#login')
     .classList
     .add('hidden');
 
-
   $('#app')
     .classList
     .remove('hidden');
 
-
   // Setup image upload UI
   setupImageUpload();
 
-
+  // Load latest data
   loadData();
+}
+
+
+// ======================================================
+// CHECK EXISTING SUPABASE SESSION
+// ======================================================
+
+async function checkAdminSession() {
+
+  try {
+
+    const {
+      data: {
+        session
+      },
+      error
+    } = await db.auth.getSession();
+
+
+    if (error) {
+
+      console.error(
+        'Session error:',
+        error
+      );
+
+      showLogin();
+
+      return;
+    }
+
+
+    // No logged-in user
+    if (!session) {
+
+      showLogin();
+
+      return;
+    }
+
+
+    const userId =
+      session.user.id;
+
+
+    // Check authorized admin
+    if (
+      !ADMIN_IDS.includes(userId)
+    ) {
+
+      await db.auth.signOut();
+
+      alert(
+        'You are not authorized to access the admin panel.'
+      );
+
+      showLogin();
+
+      return;
+    }
+
+
+    // Authorized admin
+    openAdmin();
+
+  } catch (error) {
+
+    console.error(
+      'Session check error:',
+      error
+    );
+
+    showLogin();
+  }
 }
 
 
@@ -1200,32 +1275,116 @@ function openAdmin() {
 // ======================================================
 
 $('#loginBtn').onclick =
-  function () {
+  async function () {
 
-    const pin =
-      localStorage.getItem(
-        'sahasra-admin-pin'
-      ) || '1234';
+    const email =
+      $('#email')
+        .value
+        .trim();
+
+    const password =
+      $('#password')
+        .value;
+
+    const errorBox =
+      $('#loginError');
 
 
+    errorBox.textContent = '';
+
+
+    // Validation
     if (
-      $('#pin').value === pin
+      !email ||
+      !password
     ) {
 
+      errorBox.textContent =
+        'Please enter email and password.';
+
+      return;
+    }
+
+
+    $('#loginBtn').disabled =
+      true;
+
+    $('#loginBtn').textContent =
+      'Logging in...';
+
+
+    try {
+
+      const {
+        data,
+        error
+      } = await db.auth.signInWithPassword({
+
+        email: email,
+
+        password: password
+
+      });
+
+
+      if (error) {
+
+        throw error;
+      }
+
+
+      const user =
+        data.user;
+
+
+      // Check whether this user is an approved admin
+      if (
+        !ADMIN_IDS.includes(
+          user.id
+        )
+      ) {
+
+        await db.auth.signOut();
+
+        throw new Error(
+          'This account is not authorized as an admin.'
+        );
+      }
+
+
+      // Open admin panel
       openAdmin();
 
-    } else {
 
-      alert(
-        'Incorrect PIN.'
+    } catch (error) {
+
+      console.error(
+        'Login error:',
+        error
       );
+
+      errorBox.textContent =
+        error.message ||
+        'Login failed.';
+
+    } finally {
+
+      $('#loginBtn').disabled =
+        false;
+
+      $('#loginBtn').textContent =
+        'Login';
     }
   };
 
 
-$('#pin').addEventListener(
+// ======================================================
+// ENTER KEY LOGIN
+// ======================================================
+
+$('#password').addEventListener(
   'keydown',
-  e => {
+  function (e) {
 
     if (
       e.key === 'Enter'
@@ -1238,57 +1397,168 @@ $('#pin').addEventListener(
 
 
 // ======================================================
+// LOGOUT
+// ======================================================
+
+$('#logout').onclick =
+  async function () {
+
+    try {
+
+      const {
+        error
+      } = await db.auth.signOut();
+
+
+      if (error) {
+
+        console.error(
+          'Logout error:',
+          error
+        );
+
+        alert(
+          'Logout failed: ' +
+          error.message
+        );
+
+        return;
+      }
+
+
+      showLogin();
+
+
+      $('#email').value =
+        '';
+
+      $('#password').value =
+        '';
+
+      $('#loginError').textContent =
+        '';
+
+    } catch (error) {
+
+      console.error(
+        'Logout error:',
+        error
+      );
+
+      alert(
+        'Logout failed.'
+      );
+    }
+  };
+
+
+// ======================================================
+// AUTH STATE CHANGE
+// ======================================================
+
+db.auth.onAuthStateChange(
+  async function (
+    event,
+    session
+  ) {
+
+    // User logged out
+    if (
+      event === 'SIGNED_OUT'
+    ) {
+
+      showLogin();
+
+      return;
+    }
+
+
+    // User logged in
+    if (
+      event === 'SIGNED_IN' &&
+      session
+    ) {
+
+      const userId =
+        session.user.id;
+
+
+      // Check admin authorization
+      if (
+        ADMIN_IDS.includes(
+          userId
+        )
+      ) {
+
+        openAdmin();
+
+      } else {
+
+        await db.auth.signOut();
+
+        showLogin();
+
+        alert(
+          'This account is not authorized as an admin.'
+        );
+      }
+    }
+  }
+);
+
+
+// ======================================================
 // TABS
 // ======================================================
 
 $('.tabs').addEventListener(
   'click',
-  e => {
+  function (e) {
 
     const button =
-      e.target.closest('.tab');
+      e.target.closest(
+        '.tab'
+      );
 
 
     if (!button) {
+
       return;
     }
 
 
     document
       .querySelectorAll('.tab')
-      .forEach(tab => {
+      .forEach(
+        function (tab) {
 
-        tab.classList.toggle(
-          'active',
-          tab === button
-        );
-      });
+          tab.classList.toggle(
+            'active',
+            tab === button
+          );
+        }
+      );
 
 
     document
       .querySelectorAll('.tab-panel')
-      .forEach(panel => {
+      .forEach(
+        function (panel) {
 
-        panel.classList.toggle(
-          'hidden',
-          panel.id !==
-          'tab-' +
-          button.dataset.tab
-        );
-      });
+          panel.classList.toggle(
+            'hidden',
+            panel.id !==
+              'tab-' +
+              button.dataset.tab
+          );
+        }
+      );
   }
 );
 
 
 // ======================================================
-// AUTO LOGIN
+// START ADMIN AUTH CHECK
 // ======================================================
 
-if (
-  sessionStorage.getItem(
-    'sahasra-admin'
-  ) === '1'
-) {
-
-  openAdmin();
-}
+checkAdminSession();

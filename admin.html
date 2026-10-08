@@ -9,14 +9,108 @@
 :root{--brown:#6b2f25;--deep:#3d211b;--gold:#d99a37;--cream:#fbf4e8;--paper:#fffdf8;--line:#eadfce;--muted:#806f65;--green:#536b42}*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--deep);font-family:'DM Sans',sans-serif}button,input,select{font:inherit}.hidden{display:none!important}.login{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 20% 20%,#f5d8a0 0 12%,transparent 30%),var(--cream)}.login-card{width:min(430px,100%);background:var(--paper);padding:34px;border-radius:28px;box-shadow:0 20px 60px #4b2a2017;border:1px solid var(--line);text-align:center}.logo{width:64px;height:64px;border-radius:20px;background:var(--brown);color:#fff;display:grid;place-items:center;margin:0 auto 16px;font:800 34px Georgia}.login h1,.top h1{font-family:'Playfair Display',serif;margin:0}.login p{color:var(--muted)}.field{display:grid;gap:7px;text-align:left;margin:16px 0}.field label{font-weight:700;font-size:13px}.field input,.field select{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:13px;background:white;outline:none}.btn{border:0;border-radius:13px;padding:13px 18px;font-weight:800;cursor:pointer}.primary{background:var(--brown);color:white}.gold{background:var(--gold);color:#fff}.ghost{background:#f6eee1;color:var(--brown)}.danger{background:#fce9e6;color:#a33427}.app{min-height:100vh}.top{position:sticky;top:0;z-index:10;background:#fffdf8eF;backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:15px clamp(16px,4vw,42px);display:flex;align-items:center;justify-content:space-between;gap:14px}.top small{display:block;color:var(--muted);margin-top:2px}.wrap{width:min(1200px,100%);margin:auto;padding:22px clamp(14px,3vw,32px) 60px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}.stat{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:17px}.stat b{font-size:26px}.stat span{display:block;color:var(--muted);font-size:13px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 14px;cursor:pointer}.tab.active{background:var(--brown);color:#fff;border-color:var(--brown)}.panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:20px;margin-bottom:18px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.panel h2{margin:0;font-size:20px}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.full{grid-column:1/-1}.actions{display:flex;gap:8px;flex-wrap:wrap}.table-wrap{overflow:auto}.items{width:100%;border-collapse:collapse;min-width:760px}.items th,.items td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:middle}.items th{font-size:12px;text-transform:uppercase;color:var(--muted)}.item-img{width:54px;height:45px;object-fit:cover;border-radius:10px;background:#eee}.small-btn{padding:8px 10px;border-radius:9px;border:0;cursor:pointer;font-weight:700}.notice{background:#fff6db;border:1px solid #edd18b;padding:12px 14px;border-radius:14px;color:#72551d;font-size:13px;line-height:1.5}.category-list{display:flex;gap:8px;flex-wrap:wrap}.cat{display:flex;align-items:center;gap:8px;background:#f6eee1;border-radius:999px;padding:8px 10px 8px 14px}.cat button{border:0;background:#fff;border-radius:50%;width:24px;height:24px;cursor:pointer}.empty{padding:30px;text-align:center;color:var(--muted)}@media(max-width:700px){.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}.top{align-items:flex-start}.top .actions .btn{padding:9px 11px}.wrap{padding-top:14px}.panel{padding:15px}.login-card{padding:26px 20px}}
 </style>
 </head><body>
-<section id="login" class="login"><div class="login-card"><div class="logo">S</div><h1>Admin Panel</h1><p>Manage your Sahasra Home Foods menu without editing code.</p><div class="field"><label>Admin PIN</label><input id="pin" type="password" inputmode="numeric" placeholder="Enter PIN"></div><button id="loginBtn" class="btn primary" style="width:100%">Open Dashboard</button><p style="font-size:12px;margin-top:16px">Default PIN: <b>1234</b> — change it from Settings.</p></div></section>
+<section id="login" class="login"><div class="login-card"><div class="logo">S</div><h1>Admin Panel</h1><p>Manage your Sahasra Home Foods menu without editing code.</p><div class="field">
+  <label>Admin Email</label>
+  <input
+    id="email"
+    type="email"
+    placeholder="Enter admin email"
+    autocomplete="email"
+  >
+</div>
+
+<div class="field">
+  <label>Password</label>
+  <input
+    id="password"
+    type="password"
+    placeholder="Enter password"
+    autocomplete="current-password"
+  >
+</div>
+
+<button id="loginBtn" class="btn primary" style="width:100%">
+  Login
+</button>
+
+<p id="loginError" style="font-size:12px;margin-top:16px;color:#a33427"></p></div></section>
 <section id="app" class="app hidden"><header class="top"><div><h1>Sahasra Home Foods</h1><small>Menu Manager</small></div><div class="actions"><button class="btn ghost" id="viewSite">View Website</button><button class="btn primary" id="logout">Logout</button></div></header><main class="wrap">
 <div class="stats"><div class="stat"><b id="itemCount">0</b><span>Menu items</span></div><div class="stat"><b id="catCount">0</b><span>Categories</span></div><div class="stat"><b id="storageState">Saved</b><span>Changes on this device</span></div></div>
-<div class="notice">Add or edit products here. Changes are saved automatically. This simple version stores the menu in the browser. For a real online admin where changes instantly appear for every customer, connect the site to a shared database (Supabase/Firebase).</div>
+<div class="notice">Add or edit products here. Changes are saved to the online Supabase database and are visible on the customer website.</div>
 <div class="tabs"><button class="tab active" data-tab="items">🍽️ Items</button><button class="tab" data-tab="categories">📁 Categories</button><button class="tab" data-tab="settings">⚙️ Settings</button></div>
 <section id="tab-items" class="tab-panel"><div class="panel"><div class="panel-head"><h2 id="formTitle">Add New Item</h2><button class="btn ghost" id="resetForm">Clear</button></div><div class="form-grid"><div class="field"><label>English Name *</label><input id="en" placeholder="e.g. Kaju Burfi"></div><div class="field"><label>Telugu Name *</label><input id="te" placeholder="e.g. కాజు బర్ఫీ"></div><div class="field"><label>Category *</label><select id="category"></select></div><div class="field"><label>Unit</label><input id="unit" placeholder="1 Kg / 5 Pcs / 1 Piece"></div><div class="field"><label>Price (₹)</label><input id="price" type="number" min="0" placeholder="400"></div><div class="field"><label>Image URL</label><input id="image" placeholder="https://..."></div><div class="full actions"><button class="btn primary" id="saveItem">Add Item</button><button class="btn ghost" id="duplicateItem">Duplicate</button></div></div></div>
 <div class="panel"><div class="panel-head"><h2>All Menu Items</h2><input id="filter" placeholder="Search items..." style="max-width:280px;padding:10px 12px;border:1px solid var(--line);border-radius:12px"></div><div class="table-wrap"><table class="items"><thead><tr><th>Image</th><th>English</th><th>Telugu</th><th>Category</th><th>Unit</th><th>Price</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div><div id="itemEmpty" class="empty hidden">No items found.</div></div></section>
 <section id="tab-categories" class="tab-panel hidden"><div class="panel"><div class="panel-head"><h2>Categories</h2></div><div class="form-grid"><div class="field"><label>New Category Name</label><input id="newCategory" placeholder="e.g. Festival Specials"></div><div class="field" style="align-self:end"><button class="btn primary" id="addCategory">Create Category</button></div></div></div><div class="panel"><div id="categoryList" class="category-list"></div></div></section>
-<section id="tab-settings" class="tab-panel hidden"><div class="panel"><div class="panel-head"><h2>Settings</h2></div><div class="form-grid"><div class="field"><label>New Admin PIN</label><input id="newPin" type="password" placeholder="Choose a PIN"></div><div class="field" style="align-self:end"><button class="btn primary" id="changePin">Change PIN</button></div><div class="field full"><label>Data Backup</label><div class="actions"><button class="btn gold" id="exportData">Download Menu Backup</button><label class="btn ghost" style="cursor:pointer">Restore Backup <input id="importData" type="file" accept="application/json" hidden></label><button class="btn danger" id="resetData">Reset to Original Menu</button></div></div></div></div></section>
-</main></section><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="admin.js"></script></script></body></html>
+<section id="tab-settings" class="tab-panel hidden">
+  <div class="panel">
+
+    <div class="panel-head">
+      <h2>Settings</h2>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="field full">
+        <label>Admin Account</label>
+
+        <p style="margin:0;color:var(--muted);font-size:14px;line-height:1.6;">
+          Admin access is now secured using Supabase email and password.
+          Only authorized admin accounts can manage the menu.
+        </p>
+      </div>
+
+
+      <div class="field full">
+        <label>Data Backup</label>
+
+        <div class="actions">
+
+          <button
+            class="btn gold"
+            id="exportData">
+            Download Menu Backup
+          </button>
+
+
+          <label
+            class="btn ghost"
+            style="cursor:pointer">
+
+            Restore Backup
+
+            <input
+              id="importData"
+              type="file"
+              accept="application/json"
+              hidden>
+
+          </label>
+
+
+          <button
+            class="btn danger"
+            id="resetData">
+            Reset to Original Menu
+          </button>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="data.js"></script>
+
+<script src="admin.js"></script>
+
+
+</body>
+</html>
